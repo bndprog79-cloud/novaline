@@ -11,7 +11,7 @@
  */
 'use strict';
 
-const CACHE_VERSION = '0a7adf0f31';
+const CACHE_VERSION = 'fc0c8bb32b';
 const CACHE_PREFIX = 'novaline-';
 const CACHE = CACHE_PREFIX + CACHE_VERSION;
 const PAGE = './';
@@ -35,7 +35,7 @@ self.addEventListener('install', function (event) {
       // no-cache: не брать устаревшие копии из HTTP-кэша браузера
       const files = [PAGE, PAGE_FILE].concat(ASSETS);
       return cache.addAll(files.map(function (f) { return new Request(f, { cache: 'no-cache' }); }));
-    }).then(function () { return self.skipWaiting(); })
+    }).then(precachePhotos).then(function () { return self.skipWaiting(); })
   );
 });
 
@@ -60,6 +60,8 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(pageResponse(event, req));
   } else if (assetUrls.indexOf(path) !== -1) {
     event.respondWith(assetResponse(req));
+  } else if (path.indexOf(photosUrl) === 0) {
+    event.respondWith(photoResponse(req));
   }
 });
 
@@ -110,6 +112,37 @@ function assetResponse(req) {
         caches.open(CACHE).then(function (cache) { return cache.put(req, copy); });
       }
       return fresh;
+    });
+  });
+}
+
+// ─────────── Фото меню кафе (photos/…) ───────────
+// Вставляет сборка (tools/build.js, место PHOTO_SW в sw.js) только у кафе. Список PHOTO_PRECACHE — фото разделов (плитки и шапки
+// категорий): загружаются при установке, по одному — сломанный файл не мешает остальным. Фото блюд не загружаются заранее:
+// «сначала кэш, потом сеть», удачный ответ сохраняется в тот же кэш (CACHE). Без сети и без копии — пустой ответ:
+// картинка не загрузится, на сайте останется рисунок (без сетевой ошибки в консоли).
+const PHOTO_PRECACHE = [];
+const photosUrl = new URL('./photos/', self.location).href;
+
+function precachePhotos() {
+  return caches.open(CACHE).then(function (cache) {
+    return Promise.all(PHOTO_PRECACHE.map(function (f) {
+      return cache.add(new Request(f, { cache: 'no-cache' })).catch(function () { /* загрузится при просмотре */ });
+    }));
+  });
+}
+
+function photoResponse(req) {
+  return caches.match(req, { ignoreSearch: true }).then(function (res) {
+    if (res) return res;
+    return fetch(req).then(function (fresh) {
+      if (fresh.ok) {
+        const copy = fresh.clone();
+        return caches.open(CACHE).then(function (cache) { return cache.put(req, copy); }).then(function () { return fresh; }, function () { return fresh; });
+      }
+      return fresh;
+    }).catch(function () {
+      return new Response('', { status: 200, headers: { 'Content-Type': 'image/webp', 'Cache-Control': 'no-store' } });
     });
   });
 }
