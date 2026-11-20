@@ -1109,6 +1109,25 @@
     .kback { transition: none; }
     .kback:active { transform: none; }
   }
+
+/* ── Золотая рамка шапки (settings.headerFrame: "gold"; вставляет сборка в место KIDS_FRAME_CSS, без настройки — пусто) ──
+     Только украшение, как у карточки ссылки: тонкая линия var(--gold) в 9 px от края шапки (низ скруглён как у шапки, 26 − 9 = 17 px)
+     и два одинаковых вензеля 20 px в верхних углах внутри линии. Вензель — SVG-маска (#000 — только непрозрачность), цвет — фон
+     var(--gold); правый — зеркальный левого. Рисунок лежит в треугольнике угла (катеты 20 px) — не заходит под KZ/RU и логотип.
+     Под содержимым шапки (у него z-index 1), нажатия не ловит, без анимации; размеры и отступы шапки не меняются. */
+  .khero::before {
+    content: ""; position: absolute; top: calc(9px + env(safe-area-inset-top)); right: 9px; bottom: 9px; left: 9px;
+    border: 1.5px solid var(--gold); border-radius: 0 0 17px 17px; opacity: .85; pointer-events: none;
+  }
+  .khero::after {
+    content: ""; position: absolute; top: calc(9px + env(safe-area-inset-top)); right: 9px; left: 9px; height: 20px;
+    pointer-events: none; background: var(--gold); opacity: .9;
+    --kfr-img:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23000' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M2.5 2.5C6.5 2.2 10 2.4 12.4 4C13.8 5 12.6 6.7 11.3 5.9C10.4 5.3 11 4.3 11.8 4.7'/%3E%3Cpath d='M2.5 2.5C2.2 6.5 2.4 10 4 12.4C5 13.8 6.7 12.6 5.9 11.3C5.3 10.4 4.3 11 4.7 11.8'/%3E%3Cpath fill='%23000' stroke='none' d='M7 4.6L7.6 6.4L9.4 7L7.6 7.6L7 9.4L6.4 7.6L4.6 7L6.4 6.4Z'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23000' stroke-width='1.1' stroke-linecap='round'%3E%3Cg transform='matrix(-1 0 0 1 20 0)'%3E%3Cpath d='M2.5 2.5C6.5 2.2 10 2.4 12.4 4C13.8 5 12.6 6.7 11.3 5.9C10.4 5.3 11 4.3 11.8 4.7'/%3E%3Cpath d='M2.5 2.5C2.2 6.5 2.4 10 4 12.4C5 13.8 6.7 12.6 5.9 11.3C5.3 10.4 4.3 11 4.7 11.8'/%3E%3Cpath fill='%23000' stroke='none' d='M7 4.6L7.6 6.4L9.4 7L7.6 7.6L7 9.4L6.4 7.6L4.6 7L6.4 6.4Z'/%3E%3C/g%3E%3C/svg%3E");
+    -webkit-mask-image: var(--kfr-img); -webkit-mask-position: 0 0, 100% 0; -webkit-mask-size: 20px 20px; -webkit-mask-repeat: no-repeat;
+    mask-image: var(--kfr-img); mask-position: 0 0, 100% 0; mask-size: 20px 20px; mask-repeat: no-repeat;
+  }
 </style>
 </head>
 <body>
