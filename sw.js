@@ -11,7 +11,7 @@
  */
 'use strict';
 
-const CACHE_VERSION = 'b69c799c69';
+const CACHE_VERSION = '3c29e73cfa';
 const CACHE_PREFIX = 'novaline-';
 const CACHE = CACHE_PREFIX + CACHE_VERSION;
 const PAGE = './';
